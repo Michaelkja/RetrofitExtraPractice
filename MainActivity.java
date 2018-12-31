@@ -4,8 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
         getPosts();
         //getComments();
+        createPost();
         }
 
     private void getPosts() {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("userId", "1");
-        parameters.put("_sort", "");
+        parameters.put("_sort", "id");
         parameters.put("_order", "desc");
 
         Call<List<Post>> call = jsonPlaceHolderApi.getPosts(parameters);
@@ -107,6 +106,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Comment>> call, Throwable t) {
                 textViewResults.setText(t.getMessage());
+            }
+        });
+    }
+    private void createPost() {
+        Post post = new Post(43, "Rekenen", "23 is meer dan 4");
+
+        Call<List> call = jsonPlaceHolderApi.createPost(post);
+
+        call.enqueue(new Callback<List>() {
+            @Override
+            public void onResponse(Call<List> call, Response<List> response) {
+                if (!response.isSuccessful()) {
+                    textViewResults.setText("Code: " + response.code());
+                    return;
+                }
+
+                Post postResponse = (Post) response.body();
+
+                String content = "";
+                content += "Code :" + response.code() + "\n";
+                content += "ID: " + postResponse.getId() + "\n";
+                content += "UserId :" + postResponse.getUserId() + "\n";
+                content += "Title :" + postResponse.getTitle() + "\n";
+                content += "Text: " + postResponse.getText() + "\n \n";
+
+                textViewResults.setText(content);
+            }
+
+            @Override
+            public void onFailure(Call<List> call, Throwable t) {
+
             }
         });
     }
