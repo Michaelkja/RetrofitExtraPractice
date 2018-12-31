@@ -32,9 +32,11 @@ public class MainActivity extends AppCompatActivity {
 
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
-        getPosts();
+        //getPosts();
         //getComments();
-        createPost();
+        //createPost();
+        //updatePost();
+        deletePost();
         }
 
     private void getPosts() {
@@ -112,11 +114,16 @@ public class MainActivity extends AppCompatActivity {
     private void createPost() {
         Post post = new Post(43, "Rekenen", "23 is meer dan 4");
 
-        Call<List> call = jsonPlaceHolderApi.createPost(post);
+        Map<String,String> fields = new HashMap<>();
+        fields.put("userId", "2010");
+        fields.put("title", "ff checken");
 
-        call.enqueue(new Callback<List>() {
+
+        Call<Post> call = jsonPlaceHolderApi.createPost(fields);
+
+        call.enqueue(new Callback<Post>() {
             @Override
-            public void onResponse(Call<List> call, Response<List> response) {
+            public void onResponse(Call<Post> call, Response<Post> response) {
                 if (!response.isSuccessful()) {
                     textViewResults.setText("Code: " + response.code());
                     return;
@@ -135,8 +142,55 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List> call, Throwable t) {
+            public void onFailure(Call<Post> call, Throwable t) {
+                textViewResults.setText(t.getMessage());
+            }
+        });
+    }
 
+    private void updatePost() {
+        Post post = new Post(13, "drie vier 4", "Wie weet hoeveel dat is");
+
+        Call<Post> call = jsonPlaceHolderApi.putPost(5, post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if (!response.isSuccessful()) {
+                    textViewResults.setText("Code: " + response.code());
+                    return;
+                }
+
+                Post postResponse = (Post) response.body();
+
+                String content = "";
+                content += "Code :" + response.code() + "\n";
+                content += "ID: " + postResponse.getId() + "\n";
+                content += "UserId :" + postResponse.getUserId() + "\n";
+                content += "Title :" + postResponse.getTitle() + "\n";
+                content += "Text: " + postResponse.getText() + "\n \n";
+
+                textViewResults.setText(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+            textViewResults.setText(t.getMessage());
+            }
+        });
+    }
+    private void deletePost() {
+        Call<Void> call = jsonPlaceHolderApi.deletePost(5);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                textViewResults.setText("code :" + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                textViewResults.setText(t.getMessage());
             }
         });
     }
